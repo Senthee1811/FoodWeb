@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
 import "./Cart.css"
 import { StoreContext } from '../../context/StoreContext'
+import { useNavigate } from 'react-router-dom'
 
 function Cart() {
-  const {cartItems,food_list,removeFromCart} = useContext(StoreContext)
+  const {cartItems,food_list,removeFromCart,getTotalCartAmount} = useContext(StoreContext)
+  const navigate = useNavigate();
   return (
     <div className='cart'>
       <div className="cart-items">
@@ -25,10 +27,10 @@ function Cart() {
                 <div className='cart-items-title cart-items-item'>
                 <img src={item.image} />
                 <p>{item.name}</p>
-                <p>{item.price}</p>
+                <p>${item.price}</p>
                 <p>{cartItems[item._id]}</p>
-                <p>{item.price * cartItems[item._id]}</p>
-                <p>x</p>
+                <p>${item.price * cartItems[item._id]}</p>
+                <p className='cross' onClick={()=>{removeFromCart(item._id)}}>x</p>
               </div>
               <hr />
               </div>
@@ -38,7 +40,38 @@ function Cart() {
 
         })}
       </div>
-      
+      <div className="cart-bottom">
+        <div className="cart-total">
+          <h2>Cart Total</h2>
+          <div>
+            <div className='cart-total-details'>
+              <p>Sub Total</p>
+              <p>{getTotalCartAmount()}</p>
+            </div>
+            <hr />
+            <div className='cart-total-details'>
+              <p>Delivery Fee</p>
+              <p>{getTotalCartAmount() === 0 ? 0 : 2}</p>
+            </div>
+            <hr />
+            <div className='cart-total-details'>
+              <b>Total</b>
+              <b>${getTotalCartAmount() === 0 ? 0 : 2}</b>
+              
+            </div>
+          </div>
+          <button onClick={()=> navigate('/order')}>PROCEED TO CHECKOUT</button>
+        </div>
+        <div className="cart-promocode">
+          <div>
+            <p>Apply Promo Code</p>
+            <div className='cart-promocode-input'>
+              <input type="text" placeholder='promo code' />
+              <button >Apply</button>              
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
