@@ -1,12 +1,12 @@
 import express from "express"
-import { addFood } from "../controllers/foodController.js"
+import { addFood, listFood,removeFood } from "../controllers/foodController.js"
 import multer from "multer"
 
 const foodRouter = express.Router();
 
 // Image Stroage Engine
 
-const stroage = multer.diskStorage({
+const storage = multer.diskStorage({
     destination:"uploads",
     filename:(req,file,cb)=>{
         return cb(null,`${Date.now()}${file.originalname}`)
@@ -14,9 +14,11 @@ const stroage = multer.diskStorage({
     }
 })
 
-const upload = multer({stroage:stroage})
+const upload = multer({storage:storage})
 
-foodRouter.post('/add',addFood)
+foodRouter.post('/add',upload.single("image"),addFood)
+foodRouter.get('/list',listFood)
+foodRouter.post('/remove',removeFood)
 
 
 export default foodRouter;
