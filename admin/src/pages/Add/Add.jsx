@@ -4,9 +4,8 @@ import { assets } from '../../assets/assets';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-
-function Add() {
-  const url = 'http://localhost:4000';
+function Add({ url }) {
+  console.log(url)
   const [image, setImage] = useState(null);
   const [data, setData] = useState({
     name: '',
@@ -24,7 +23,7 @@ function Add() {
     event.preventDefault();
     const formData = new FormData();
     formData.append("name", data.name);
-    formData.append("description", data.description); // fixed typo from "descripton" to "description"
+    formData.append("description", data.description);
     formData.append("price", Number(data.price));
     formData.append("category", data.category);
     formData.append("image", image);
@@ -44,13 +43,24 @@ function Add() {
           category: 'Salad',
         });
         setImage(null);
-        toast.success(response.data.message)
+        toast.success(response.data.message);
       } else {
-        // handle unsuccessful response
-        toast.error(response.data.message)
+        toast.error(response.data.message);
       }
     } catch (error) {
-      console.error('Error occurred while adding food:', error);
+      if (error.response) {
+        // Server responded with a status code outside the 2xx range
+        console.error('Error response:', error.response);
+        toast.error(error.response.data.message || 'Failed to add food item');
+      } else if (error.request) {
+        // Request was made but no response was received
+        console.error('Error request:', error.request);
+        toast.error('No response from the server');
+      } else {
+        // Error in setting up the request
+        console.error('Error message:', error.message);
+        toast.error('Error in setting up the request');
+      }
     }
   };
 
@@ -60,10 +70,14 @@ function Add() {
         <div className="add-img-upload flex-col">
           <p>Upload Image</p>
           <label htmlFor="image">
-            <img src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
+            <img 
+              src={image ? URL.createObjectURL(image) : assets.upload_area} 
+              alt="" 
+              onLoad={() => URL.revokeObjectURL(image && URL.createObjectURL(image))}
+            />
           </label>
           <input
-            onChange={(e) => { setImage(e.target.files[0]); }}
+            onChange={(e) => setImage(e.target.files[0])}
             type="file"
             id='image'
             hidden
